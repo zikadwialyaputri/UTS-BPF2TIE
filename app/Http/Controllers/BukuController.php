@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -11,7 +10,8 @@ class BukuController extends Controller
      */
     public function index()
     {
-        //
+        $dataBuku['dataBuku'] = Buku::all();
+        return view('buku.index', $dataBuku);
     }
 
     /**
@@ -19,7 +19,7 @@ class BukuController extends Controller
      */
     public function create()
     {
-        //
+        return view('buku.create');
     }
 
     /**
@@ -27,7 +27,20 @@ class BukuController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // dd($request->all());
+
+        $validated = $request->validate([
+            'judul'        => 'required',
+            'penulis'      => 'required',
+            'penerbit'     => 'required|date',
+            'tahun_terbit' => 'required|numeric',
+            'jumlah'       => 'required|numeric|min:1',
+        ]);
+
+        Buku::create($validated);
+        return redirect()
+            ->route('buku.index')
+            ->with('success', 'Penambahan Data Berhasil!');
     }
 
     /**
@@ -43,7 +56,8 @@ class BukuController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $dataBuku['dataBuku'] = Buku::findOrFail($id);
+        return view('buku.edit', $dataBuku);
     }
 
     /**
@@ -51,7 +65,20 @@ class BukuController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'judul'        => 'required',
+            'penulis'      => 'required',
+            'penerbit'     => 'required|date',
+            'tahun_terbit' => 'required|numeric',
+            'jumlah'       => 'required|numeric|min:1',
+        ]);
+
+        $buku = Buku::findOrFail($id);
+        $buku->update($validated);
+
+        return redirect()
+            ->route('buku.index')
+            ->with('success', 'Perubahan Data Buku Berhasil!');
     }
 
     /**
@@ -59,6 +86,9 @@ class BukuController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $buku = Buku::findOrFail($id);
+
+        $buku->delete();
+        return redirect()->route('buku.index')->with('success', 'Data Buku berhasil dihapus');
     }
 }
